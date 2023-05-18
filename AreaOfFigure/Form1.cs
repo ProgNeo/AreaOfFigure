@@ -10,10 +10,10 @@ namespace AreaOfFigure
         public Form1()
         {
             InitializeComponent();
-            DrawStar();
+            Draw();
         }
 
-        private void DrawStar()
+        private void Draw()
         {
             var bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             var g = Graphics.FromImage(bmp);
@@ -51,10 +51,11 @@ namespace AreaOfFigure
                 pentagonPoints[i] = new Point(x, y);
             }
 
-            var pentagonArea = calculateAreaOfPentagon(pentagonRadius, angle);
-            var circleArea = calculateAreaOfCircle(diameter);
+            var pentagonArea = CalculateAreaOfPentagon(pentagonRadius, angle);
+            var circleArea = CalculateAreaOfCircle(diameter);
+            var area = pentagonArea - circleArea;
 
-            areaOfFigure.Text = (pentagonArea - circleArea).ToString(CultureInfo.InvariantCulture);
+            areaOfFigure.Text = string.Format(CultureInfo.InvariantCulture, @"{0:0.00}", area);
 
             g.FillPolygon(new SolidBrush(Color.FromArgb(100, Color.Red)), pentagonPoints);
 
@@ -73,12 +74,12 @@ namespace AreaOfFigure
             pictureBox1.Image = bmp;
         }
 
-        private double calculateAreaOfPentagon(float radius, float angle)
+        private double CalculateAreaOfPentagon(float radius, float angle)
         {
             return 5f / 2f * radius * radius * Math.Sin(angle);
         }
 
-        private double calculateAreaOfCircle(float diameter)
+        private double CalculateAreaOfCircle(float diameter)
         {
             return Math.PI * ((diameter / 2) * (diameter / 2));
         }
@@ -86,12 +87,12 @@ namespace AreaOfFigure
         private void trackBar1_ValueChanged(object sender, EventArgs e)
         {
             _distanceToApex = trackBar1.Value;
-            DrawStar();
+            Draw();
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
-            DrawStar();
+            Draw();
         }
     }
 }
