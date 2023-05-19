@@ -21,14 +21,6 @@ namespace AreaOfFigure
             CalculateArea();
         }
 
-        private void TrackBarValueChanged(object sender, EventArgs e)
-        {
-            _pentagonRadius = trackBar.Value;
-            _starRadius = 2.63 * _pentagonRadius;
-            Draw();
-            CalculateArea();
-        }
-
         private void FormSizeChanged(object sender, EventArgs e)
         {
             _centerPoint = new Point(pictureBox.Width / 2, pictureBox.Height / 2);
@@ -40,6 +32,43 @@ namespace AreaOfFigure
         {
             Draw();
             CalculateArea();
+        }
+
+        private void ChangePentagonRadius(int value)
+        {
+            _pentagonRadius += value;
+
+            _pentagonRadius = _pentagonRadius switch
+            {
+                < 1 => 1,
+                > 100 => 100,
+                _ => _pentagonRadius
+            };
+
+            _starRadius = 2.63 * _pentagonRadius;
+            radiusTextBox.Text = _pentagonRadius.ToString();
+            Draw();
+            CalculateArea();
+        }
+
+        private void MajorDecreaseButtonClick(object sender, EventArgs e)
+        {
+            ChangePentagonRadius(-5);
+        }
+
+        private void MinorDecreaseButtonClick(object sender, EventArgs e)
+        {
+            ChangePentagonRadius(-1);
+        }
+
+        private void MajorIncreaseButtonClick(object sender, EventArgs e)
+        {
+            ChangePentagonRadius(5);
+        }
+
+        private void MinorIncreaseButtonClick(object sender, EventArgs e)
+        {
+            ChangePentagonRadius(1);
         }
 
         private void CalculateArea()
