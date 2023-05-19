@@ -3,96 +3,198 @@ using System.Globalization;
 
 namespace AreaOfFigure
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        private int _distanceToApex = 100;
+        private const float Angle = 1.25664f;
+        private int _pentagonRadius = 2;
+        private double _pentagonSide;
+        private double _starRadius = 2.63 * 2;
+        private double _circleRadius;
+        private Point _centerPoint;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
+            _centerPoint = new Point(pictureBox.Width / 2, pictureBox.Height / 2);
+            scaleComboBox.Text = @"100%";
             Draw();
+            CalculateArea();
+        }
+
+        private void TrackBarValueChanged(object sender, EventArgs e)
+        {
+            _pentagonRadius = trackBar.Value;
+            _starRadius = 2.63 * _pentagonRadius;
+            Draw();
+            CalculateArea();
+        }
+
+        private void FormSizeChanged(object sender, EventArgs e)
+        {
+            _centerPoint = new Point(pictureBox.Width / 2, pictureBox.Height / 2);
+            Draw();
+            CalculateArea();
+        }
+
+        private void ScaleComboBoxChanged(object sender, EventArgs e)
+        {
+            Draw();
+            CalculateArea();
+        }
+
+        private void CalculateArea()
+        {
+            var pentagonArea = CalculateAreaOfPentagon(_pentagonRadius, Angle);
+            var circleArea = CalculateAreaOfCircle(_circleRadius);
+            var area = pentagonArea - circleArea;
+
+            areaOfFigure.Text = string.Format(CultureInfo.InvariantCulture, @"{0:0.00}", area);
         }
 
         private void Draw()
         {
-            var bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            var g = Graphics.FromImage(bmp);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            var bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
+            var graphics = Graphics.FromImage(bmp);
 
-            var centerX = pictureBox1.Width / 2;
-            var centerY = pictureBox1.Height / 2;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            var diameter = 0.62f * _distanceToApex;
-            var pentagonRadius = 0.38f * _distanceToApex;
+            DrawPentagon(graphics);
+            DrawCircle(graphics);
+            DrawStar(graphics);
 
-            const float angle = 1.25664f;
-
-            var points = new Point[5];
-            points[0] = new Point(centerX, centerY - _distanceToApex);
-
-            for (var i = 1; i < 5; i++)
-            {
-                var x = Convert.ToInt32(centerX + (points[i - 1].X - centerX) * Math.Cos(angle) -
-                                        (points[i - 1].Y - centerY) * Math.Sin(angle));
-                var y = Convert.ToInt32(centerY + (points[i - 1].X - centerX) * Math.Sin(angle) +
-                                        (points[i - 1].Y - centerY) * Math.Cos(angle));
-                points[i] = new Point(x, y);
-            }
-
-            var pentagonPoints = new Point[5];
-            pentagonPoints[0] = new Point(centerX, Convert.ToInt32(centerY + pentagonRadius));
-
-            for (var i = 1; i < 5; i++)
-            {
-                var x = Convert.ToInt32(centerX + (pentagonPoints[i - 1].X - centerX) * Math.Cos(angle) -
-                                        (pentagonPoints[i - 1].Y - centerY) * Math.Sin(angle));
-                var y = Convert.ToInt32(centerY + (pentagonPoints[i - 1].X - centerX) * Math.Sin(angle) +
-                                        (pentagonPoints[i - 1].Y - centerY) * Math.Cos(angle));
-                pentagonPoints[i] = new Point(x, y);
-            }
-
-            var pentagonArea = CalculateAreaOfPentagon(pentagonRadius, angle);
-            var circleArea = CalculateAreaOfCircle(diameter);
-            var area = pentagonArea - circleArea;
-
-            areaOfFigure.Text = string.Format(CultureInfo.InvariantCulture, @"{0:0.00}", area);
-
-            g.FillPolygon(new SolidBrush(Color.FromArgb(100, Color.Red)), pentagonPoints);
-
-            g.FillEllipse(new SolidBrush(Color.FromArgb(255, Color.White)),
-                new Rectangle((int)(centerX - diameter / 2), (int)(centerY - diameter / 2), (int)diameter,
-                    (int)diameter));
-
-            var blackPen = new Pen(Color.FromArgb(255, 0, 0, 0), 3);
-
-            g.DrawLine(blackPen, points[0], points[2]);
-            g.DrawLine(blackPen, points[2], points[4]);
-            g.DrawLine(blackPen, points[4], points[1]);
-            g.DrawLine(blackPen, points[1], points[3]);
-            g.DrawLine(blackPen, points[3], points[0]);
-
-            pictureBox1.Image = bmp;
+            pictureBox.Image = bmp;
         }
 
-        private double CalculateAreaOfPentagon(float radius, float angle)
+        private void DrawPentagon(Graphics graphics)
+        {
+            var redBrush = new SolidBrush(Color.FromArgb(100, Color.Red));
+
+            var pentagonPoints = new DoublePoint[5];
+            var drawablePoints = new Point[5];
+
+            pentagonPoints[0] = new DoublePoint(0, _pentagonRadius);
+            drawablePoints[0] = MoveToCenter(ScaleDoublePoint(ConvertCmToPx(pentagonPoints[0], graphics.DpiX)));
+
+            for (var i = 1; i < 5; i++)
+            {
+                var x = pentagonPoints[i - 1].X * Math.Cos(Angle) - pentagonPoints[i - 1].Y * Math.Sin(Angle);
+                var y = pentagonPoints[i - 1].X * Math.Sin(Angle) + pentagonPoints[i - 1].Y * Math.Cos(Angle);
+                pentagonPoints[i] = new DoublePoint(x, y);
+                drawablePoints[i] = MoveToCenter(ScaleDoublePoint(ConvertCmToPx(pentagonPoints[i], graphics.DpiX)));
+            }
+
+            _pentagonSide = CalculateSideOfPentagon(pentagonPoints);
+            _circleRadius = CalculateCircleRadius(_pentagonSide);
+
+            graphics.FillPolygon(redBrush, drawablePoints);
+        }
+
+        private void DrawCircle(Graphics graphics)
+        {
+            var whiteBrush = new SolidBrush(Color.FromArgb(255, Color.White));
+
+            var drawableRadius = ScaleRadius(ConvertCmToPx(_circleRadius, graphics.DpiX));
+
+            graphics.FillEllipse(whiteBrush, new Rectangle(
+                Convert.ToInt32(_centerPoint.X - drawableRadius),
+                Convert.ToInt32(_centerPoint.Y - drawableRadius),
+                Convert.ToInt32(drawableRadius * 2),
+                Convert.ToInt32(drawableRadius * 2)
+            ));
+        }
+
+        private void DrawStar(Graphics graphics)
+        {
+            var blackPen = new Pen(Color.FromArgb(255, Color.Black), 5);
+
+            var starPoints = new DoublePoint[5];
+            var drawablePoints = new Point[5];
+
+            starPoints[0] = new DoublePoint(0, -_starRadius);
+            drawablePoints[0] = MoveToCenter(ScaleDoublePoint(ConvertCmToPx(starPoints[0], graphics.DpiX)));
+
+            for (var i = 1; i < 5; i++)
+            {
+                var x = starPoints[i - 1].X * Math.Cos(Angle) - starPoints[i - 1].Y * Math.Sin(Angle);
+                var y = starPoints[i - 1].X * Math.Sin(Angle) + starPoints[i - 1].Y * Math.Cos(Angle);
+                starPoints[i] = new DoublePoint(x, y);
+                drawablePoints[i] = MoveToCenter(ScaleDoublePoint(ConvertCmToPx(starPoints[i], graphics.DpiX)));
+            }
+
+            graphics.DrawLine(blackPen, drawablePoints[0], drawablePoints[2]);
+            graphics.DrawLine(blackPen, drawablePoints[2], drawablePoints[4]);
+            graphics.DrawLine(blackPen, drawablePoints[4], drawablePoints[1]);
+            graphics.DrawLine(blackPen, drawablePoints[1], drawablePoints[3]);
+            graphics.DrawLine(blackPen, drawablePoints[3], drawablePoints[0]);
+        }
+
+        private double CalculateSideOfPentagon(IReadOnlyList<DoublePoint> points)
+        {
+            return Math.Sqrt(Math.Pow(points[1].X - points[0].X, 2) + Math.Pow(points[1].Y - points[0].Y, 2));
+        }
+
+        private double CalculateCircleRadius(double pentagonSide)
+        {
+            return (pentagonSide * Math.Sqrt(25 + 10 * Math.Sqrt(5))) / 10;
+        }
+
+        private double CalculateAreaOfPentagon(double radius, double angle)
         {
             return 5f / 2f * radius * radius * Math.Sin(angle);
         }
 
-        private double CalculateAreaOfCircle(float diameter)
+        private double CalculateAreaOfCircle(double radius)
         {
-            return Math.PI * ((diameter / 2) * (diameter / 2));
+            return Math.PI * (radius * radius);
         }
 
-        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        private DoublePoint ConvertCmToPx(DoublePoint point, double dpi)
         {
-            _distanceToApex = trackBar1.Value;
-            Draw();
+            return new DoublePoint(point.X * (dpi / 2.54), point.Y * (dpi / 2.54));
         }
 
-        private void Form1_SizeChanged(object sender, EventArgs e)
+        private double ConvertCmToPx(double value, double dpi)
         {
-            Draw();
+            return value * (dpi / 2.54);
+        }
+
+        private DoublePoint ScaleDoublePoint(DoublePoint point)
+        {
+            var multiplier = scaleComboBox.SelectedIndex switch
+            {
+                0 => 0.5d,
+                1 => 0.75d,
+                2 => 1d,
+                3 => 1.25d,
+                4 => 1.5d,
+                5 => 1.75d,
+                6 => 2d,
+                _ => 1d
+            };
+
+            return new DoublePoint(point.X * multiplier, point.Y * multiplier);
+        }
+
+        private double ScaleRadius(double radius)
+        {
+            var multiplier = scaleComboBox.SelectedIndex switch
+            {
+                0 => 0.5d,
+                1 => 0.75d,
+                2 => 1d,
+                3 => 1.25d,
+                4 => 1.5d,
+                5 => 1.75d,
+                6 => 2d,
+                _ => 1d
+            };
+
+            return radius * multiplier;
+        }
+
+        private Point MoveToCenter(DoublePoint point)
+        {
+            return new Point(Convert.ToInt32(point.X + _centerPoint.X), Convert.ToInt32(point.Y + _centerPoint.Y));
         }
     }
 }
