@@ -105,12 +105,13 @@
             // 
             // radiusTextBox
             // 
-            radiusTextBox.Enabled = false;
             radiusTextBox.Location = new Point(53, 28);
             radiusTextBox.Name = "radiusTextBox";
             radiusTextBox.Size = new Size(117, 23);
             radiusTextBox.TabIndex = 4;
             radiusTextBox.Text = "2";
+            radiusTextBox.TextChanged += RadiusTextChanged;
+            radiusTextBox.KeyPress += RadiusTextBoxKeyPress;
             // 
             // scaleComboBox
             // 

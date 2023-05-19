@@ -1,5 +1,6 @@
-using System.Drawing.Drawing2D;
+﻿using System.Drawing.Drawing2D;
 using System.Globalization;
+using static System.Int32;
 
 namespace AreaOfFigure
 {
@@ -7,8 +8,8 @@ namespace AreaOfFigure
     {
         private const float Angle = 1.25664f;
         private int _pentagonRadius = 2;
-        private double _pentagonSide;
         private double _starRadius = 2.63 * 2;
+        private double _pentagonSide;
         private double _circleRadius;
         private Point _centerPoint;
 
@@ -34,16 +35,20 @@ namespace AreaOfFigure
             CalculateArea();
         }
 
-        private void ChangePentagonRadius(int value)
+        private void SetPentagonRadius(int value)
         {
-            _pentagonRadius += value;
+            _pentagonRadius = value;
 
-            _pentagonRadius = _pentagonRadius switch
+            if (_pentagonRadius < 1)
             {
-                < 1 => 1,
-                > 100 => 100,
-                _ => _pentagonRadius
-            };
+                MessageBox.Show("Число должно быть больше 1", "Внимание!");
+                _pentagonRadius = 1;
+            }
+            else if (_pentagonRadius > 100)
+            {
+                MessageBox.Show("Число должно быть меньше 100", "Внимание!");
+                _pentagonRadius = 100;
+            }
 
             _starRadius = 2.63 * _pentagonRadius;
             radiusTextBox.Text = _pentagonRadius.ToString();
@@ -53,22 +58,22 @@ namespace AreaOfFigure
 
         private void MajorDecreaseButtonClick(object sender, EventArgs e)
         {
-            ChangePentagonRadius(-5);
+            SetPentagonRadius(_pentagonRadius - 5);
         }
 
         private void MinorDecreaseButtonClick(object sender, EventArgs e)
         {
-            ChangePentagonRadius(-1);
+            SetPentagonRadius(_pentagonRadius - 1);
         }
 
         private void MajorIncreaseButtonClick(object sender, EventArgs e)
         {
-            ChangePentagonRadius(5);
+            SetPentagonRadius(_pentagonRadius + 5);
         }
 
         private void MinorIncreaseButtonClick(object sender, EventArgs e)
         {
-            ChangePentagonRadius(1);
+            SetPentagonRadius(_pentagonRadius + 1);
         }
 
         private void CalculateArea()
@@ -134,7 +139,7 @@ namespace AreaOfFigure
 
         private void DrawStar(Graphics graphics)
         {
-            var blackPen = new Pen(Color.FromArgb(255, Color.Black), 5);
+            var blackPen = new Pen(Color.FromArgb(255, Color.Black), 3);
 
             var starPoints = new DoublePoint[5];
             var drawablePoints = new Point[5];
@@ -224,6 +229,35 @@ namespace AreaOfFigure
         private Point MoveToCenter(DoublePoint point)
         {
             return new Point(Convert.ToInt32(point.X + _centerPoint.X), Convert.ToInt32(point.Y + _centerPoint.Y));
+        }
+
+        private void RadiusTextBoxKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar is '.' or ',')
+            {
+                MessageBox.Show("Допустимы только целочисленные значения.", "Внимание!");
+            }
+            else if (e.KeyChar is '-')
+            {
+                MessageBox.Show("Допустимы только положительные значения.", "Внимание!");
+            }
+            else if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                MessageBox.Show("Допустим только числовой ввод.", "Внимание!");
+            }
+
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void RadiusTextChanged(object sender, EventArgs e)
+        {
+            if (TryParse(radiusTextBox.Text, out var radius))
+            {
+                SetPentagonRadius(radius);
+            }
         }
     }
 }
