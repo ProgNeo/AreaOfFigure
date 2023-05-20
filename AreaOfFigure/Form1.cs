@@ -41,7 +41,7 @@ namespace AreaOfFigure
 
             if (_pentagonRadius < 1)
             {
-                MessageBox.Show("Число должно быть больше 1", "Внимание!");
+                MessageBox.Show("Число должно быть больше 0", "Внимание!");
                 _pentagonRadius = 1;
             }
             else if (_pentagonRadius > 100)
@@ -87,6 +87,8 @@ namespace AreaOfFigure
 
         private void Draw()
         {
+            if (pictureBox.Height == 0 || pictureBox.Width == 0) return;
+
             var bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
             var graphics = Graphics.FromImage(bmp);
 
