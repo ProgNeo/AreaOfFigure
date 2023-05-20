@@ -46,7 +46,7 @@ namespace AreaOfFigure
             }
             else if (_pentagonRadius > 100)
             {
-                MessageBox.Show("Число должно быть меньше 100", "Внимание!");
+                MessageBox.Show("Число должно быть меньше или равно 100", "Внимание!");
                 _pentagonRadius = 100;
             }
 
@@ -82,7 +82,7 @@ namespace AreaOfFigure
             var circleArea = CalculateAreaOfCircle(_circleRadius);
             var area = pentagonArea - circleArea;
 
-            areaOfFigure.Text = string.Format(CultureInfo.InvariantCulture, @"{0:0.00}", area);
+            areaOfFigureText.Text = string.Format(CultureInfo.InvariantCulture, @"{0:0.00}", area);
         }
 
         private void Draw()
@@ -235,11 +235,11 @@ namespace AreaOfFigure
 
         private void RadiusTextBoxKeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar is '.' or ',')
+            if (e.KeyChar is '-')
             {
                 MessageBox.Show("Допустимы только целочисленные значения.", "Внимание!");
             }
-            else if (e.KeyChar is '-')
+            else if (e.KeyChar is '.' or ',')
             {
                 MessageBox.Show("Допустимы только положительные значения.", "Внимание!");
             }

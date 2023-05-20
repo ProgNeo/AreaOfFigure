@@ -36,10 +36,10 @@
             radiusTextBox = new TextBox();
             scaleComboBox = new ComboBox();
             label3 = new Label();
-            areaOfFigure = new Label();
             label2 = new Label();
             label1 = new Label();
             pictureBox = new PictureBox();
+            areaOfFigureText = new TextBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
             SuspendLayout();
@@ -48,6 +48,7 @@
             // 
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             panel1.BackColor = Color.White;
+            panel1.Controls.Add(areaOfFigureText);
             panel1.Controls.Add(majorIncreaseButton);
             panel1.Controls.Add(minorIncreaseButton);
             panel1.Controls.Add(minorDecreaseButton);
@@ -55,7 +56,6 @@
             panel1.Controls.Add(radiusTextBox);
             panel1.Controls.Add(scaleComboBox);
             panel1.Controls.Add(label3);
-            panel1.Controls.Add(areaOfFigure);
             panel1.Controls.Add(label2);
             panel1.Controls.Add(label1);
             panel1.Location = new Point(586, 0);
@@ -133,15 +133,6 @@
             label3.TabIndex = 3;
             label3.Text = "Масштаб изображения:";
             // 
-            // areaOfFigure
-            // 
-            areaOfFigure.AutoSize = true;
-            areaOfFigure.Location = new Point(3, 116);
-            areaOfFigure.Name = "areaOfFigure";
-            areaOfFigure.Size = new Size(13, 15);
-            areaOfFigure.TabIndex = 2;
-            areaOfFigure.Text = "0";
-            // 
             // label2
             // 
             label2.AutoSize = true;
@@ -170,6 +161,15 @@
             pictureBox.TabIndex = 2;
             pictureBox.TabStop = false;
             // 
+            // areaOfFigureText
+            // 
+            areaOfFigureText.Enabled = false;
+            areaOfFigureText.Location = new Point(3, 119);
+            areaOfFigureText.Name = "areaOfFigureText";
+            areaOfFigureText.Size = new Size(221, 23);
+            areaOfFigureText.TabIndex = 9;
+            areaOfFigureText.Text = "2";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -191,7 +191,6 @@
         private Panel panel1;
         private Label label1;
         private PictureBox pictureBox;
-        private Label areaOfFigure;
         private Label label2;
         private ComboBox scaleComboBox;
         private Label label3;
@@ -200,5 +199,6 @@
         private Button minorDecreaseButton;
         private Button majorDecreaseButton;
         private TextBox radiusTextBox;
+        private TextBox areaOfFigureText;
     }
 }
